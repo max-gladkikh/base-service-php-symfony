@@ -1,0 +1,56 @@
+
+#все пароли тут, от бд и другое, поэтому убираем из гита
+/.env
+
+/.ssh
+
+/nginx/log/
+/nginx/ssl/
+/nginx/conf.d/
+
+/postgres/data/
+/postgres/dump/
+
+/redis/data/
+
+###> symfony/framework-bundle ###
+# убираем /www/.env , потому что используем только /.env
+/www/.env
+/www/.env.local
+/www/.env.local.php
+/www/.env.*.local
+/www/config/secrets/prod/prod.decrypt.private.php
+/www/public/bundles/
+/www/var/
+/www/vendor/
+###< symfony/framework-bundle ###
+
+# папка с загружаемыми файлами
+/www/public/uploads/
+/www/public/uploads
+
+###> symfony/phpunit-bridge ###
+/www/.phpunit.result.cache
+/www/phpunit.xml
+/www/.phpunit.cache/
+###< symfony/phpunit-bridge ###
+
+###> phpunit/phpunit ###
+/www/phpunit.xml
+/www/.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/www/public/assets/
+/www/assets/vendor/
+###< symfony/asset-mapper ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
+
+# ну и ide-шные штуки убираем из гита
+/nbproject/
+/.vscode/
+/.idea

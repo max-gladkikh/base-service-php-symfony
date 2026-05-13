@@ -1,0 +1,46 @@
+ARG DOCKER_PHP_VERSION
+FROM php:$DOCKER_PHP_VERSION
+
+# curl нужен много всего скачивать
+# wget нужен для загрузки PosthreSQL, и может еще чего
+# vim чтобы редактировать файлы внутри контейнера
+# net-tools, чтобы смотреть какие порты слушаются
+ARG PROJECT_USER_EMAIL
+ARG PROJECT_USER_NAME
+ARG NGINX_ROOT_DIR
+RUN apt update && \
+    apt install -y curl && \
+    apt install -y wget && \
+    apt install -y vim && \
+    apt install -y net-tools && \
+
+    # git нужен чтобы запустить symfony new внутри контейнера
+    apt install -y git && \
+    git config --global user.email \'$PROJECT_USER_EMAIL\' && \
+    git config --global user.name \'$PROJECT_USER_NAME\' && \
+    git config --global --add safe.directory $NGINX_ROOT_DIR && \
+    apt install -y unzip && \
+    apt install -y apt-utils && \
+    
+    #pgsql
+    apt install -y libpq-dev && \
+    docker-php-ext-install pdo pdo_pgsql pgsql && \
+
+    #intl for symfony 
+    apt install -y libicu-dev && \
+    docker-php-ext-configure intl && \
+    docker-php-ext-install intl
+
+#ENV TZ=Asia/Yekaterinburg
+#RUN echo $TZ > /etc/timezone
+
+# WORKDIR composer надо из другого устанавливать, из WORKDIR = /
+WORKDIR /
+
+ARG COMPOSER_HASH
+#установка composer (глобально для пользователя) https://getcomposer.org/download/
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+    php -r "if (hash_file('sha384', 'composer-setup.php') === '$COMPOSER_HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
+    php composer-setup.php && \
+    php -r "unlink('composer-setup.php');" && \
+    mv composer.phar /usr/local/bin/composer

@@ -1,0 +1,50 @@
+server {
+
+    # for http
+    listen     ${NGINX_PORT_80};                    # IPv4
+    listen     [::]:${NGINX_PORT_80};               # IPv6
+
+    server_name ${NGINX_HOST} www.${NGINX_HOST};
+    server_tokens off; ## Don't show the nginx version number, a security best practice
+
+    #
+    #charset    utf-8;
+    #
+    #client_max_body_size 75M;
+
+    root  ${NGINX_ROOT_DIR};
+
+    access_log  ${NGINX_LOG_DIR}/${NGINX_PORT_80}/${NGINX_HOST}.access.log;
+    error_log   ${NGINX_LOG_DIR}/${NGINX_PORT_80}/${NGINX_HOST}.error.log;
+
+    index public/index.php;
+
+    # Перенаправляем все запросы на index.php
+    location / {
+        try_files $uri $uri/ /public/index.php?$query_string;
+    }
+
+    # Только для index.php выполняем запрос
+    location ~ (index)\.php$ {
+        fastcgi_pass ${PHP_PROJECT_HOST}:${PHPFPM_PORT};
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+        fastcgi_param QUERY_STRING    $args;
+    }
+
+    # для всех запросов с точками, задаём root директорию в папке public
+    location ~* ^.+\..+$ {
+        root ${NGINX_ROOT_DIR}/public;
+    }
+
+    # Отключаем выполнение php скриптов в папке static
+    location /public/static {
+        location ~ \.php$ {return 403;}
+    }
+
+    # Отключаем выполнение php скриптов в папке uploads
+    location /public/uploads {
+        location ~ \.php$ {return 403;}
+    }
+}
